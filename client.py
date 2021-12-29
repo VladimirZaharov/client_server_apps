@@ -4,28 +4,41 @@ import json
 import sys
 
 
-addr = ''
-port = 7777
-if len(sys.argv) > 1:
+def send_msg(some_message, some_socket):
+    msg_json = json.dumps(some_message)
+    some_socket.send(msg_json.encode('utf-8'))
+
+
+def take_msg(some_socket):
+    answer_srv_json = some_socket.recv(1024).decode('utf-8')
+    answer_srv = json.loads(answer_srv_json)
+    return answer_srv
+
+
+def main():
+    addr = ''
+    port = 7777
+    if len(sys.argv) > 1:
         addr = sys.argv[1]
         port = sys.argv[2]
-s = socket(AF_INET, SOCK_STREAM)
-s.connect((addr, port))
+    s = socket(AF_INET, SOCK_STREAM)
+    s.connect((addr, port))
 
-account_name = 'Vladimir'
-presence_msg = {
+    account_name = 'Vladimir'
+    presence_msg = {
         "action": "presence",
         "time": time.time(),
         "type": "status",
         "user": {
-                "account_name":  account_name,
-                "status":      "Yep, I am here!"
+            "account_name": account_name,
+            "status": "Yep, I am here!"
         }
-}
-presence_msg_json = json.dumps(presence_msg)
-s.send(presence_msg_json.encode('utf-8'))
+    }
 
-answer_srv_json = s.recv(1024).decode('utf-8')
-answer_srv = json.loads(answer_srv_json)
-print(answer_srv['alert'])
-s.close()
+    send_msg(presence_msg, s)
+    print(take_msg(s)['alert'])
+    s.close()
+
+
+if __name__ == '__main__':
+    main()
