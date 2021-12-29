@@ -5,7 +5,7 @@ import argparse
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument ('-p', default='7777')
+parser.add_argument ('-p', default=7777)
 parser.add_argument('-a', default='')
 
 args = parser.parse_args(sys.argv[1:])

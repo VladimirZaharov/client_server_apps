@@ -3,8 +3,12 @@ import time
 import json
 import sys
 
-addr = sys.argv[1]
-port = sys.argv[2]
+
+addr = ''
+port = 7777
+if len(sys.argv) > 1:
+        addr = sys.argv[1]
+        port = sys.argv[2]
 s = socket(AF_INET, SOCK_STREAM)
 s.connect((addr, port))
 
