@@ -36,8 +36,10 @@ def main():
     }
 
     send_msg(presence_msg, s)
-    print(take_msg(s)['alert'])
+    msg_from_server = take_msg(s)
+    print(msg_from_server['alert'])
     s.close()
+    return msg_from_server
 
 
 if __name__ == '__main__':

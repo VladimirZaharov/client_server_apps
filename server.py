@@ -1,5 +1,4 @@
 from socket import socket, AF_INET, SOCK_STREAM
-import json
 import sys
 import argparse
 from client import send_msg, take_msg
