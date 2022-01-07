@@ -1,16 +1,16 @@
 import unittest
 import client
-import server
 
 
 class ClientTestCase(unittest.TestCase):
 
-    def test_send_and_rsv_msg(self):
-        server.main()
-        self.assertEqual(client.main()['alert'], 'ответ сервера')
+    def setUp(self):
+        self.name = 'some_name'
+        self.action = 'some_action'
 
-# знаю, что работать не будет, но не смог придумать как проверить
-# прием-передачу
+    def test_gen_msg(self):
+        msg = client.gen_msg(self.name, self.action)
+        self.assertEqual(msg['USER']['ACCOUNT_NAME'], self.name)
 
 
 if __name__ == '__main__':
