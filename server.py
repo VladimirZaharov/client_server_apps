@@ -1,31 +1,33 @@
+import time
 from socket import socket, AF_INET, SOCK_STREAM
-import sys
-import argparse
-from client import send_msg, take_msg
+from utils import send_msg, take_msg, load_config, load_args
+
+
+def gen_answer(client_msg):
+    answer = {
+        "RESPONSE": 200,
+        "TIME": time.time(),
+        "ALERT": f'{client_msg["USER"]["ACCOUNT_NAME"]} knocked!'
+    }
+    if client_msg['ACTION'] == 'presence' and client_msg['TIME'] and client_msg['USER']['ACCOUNT_NAME']:
+        return answer
+    else:
+        answer['RESPONSE'] = 400
+        answer['ALERT'] = 'bad request'
+        return answer
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-p', default=7777)
-    parser.add_argument('-a', default='')
-
-    args = parser.parse_args(sys.argv[1:])
-
+    configs = load_config()
+    args = load_args(configs)
     s = socket(AF_INET, SOCK_STREAM)
     s.bind((args.a, args.p))
-    s.listen(5)
+    s.listen(configs['MAX_CONNECTIONS'])
 
     while True:
         client, addr = s.accept()
-        print(take_msg(client)['user']['account_name'])
-
-        answer_code = ''
-        alert = 'ответ сервера'
-        server_msg = {
-            "response": answer_code,
-            "alert": alert
-            }
-        send_msg(server_msg, client)
+        client_message = take_msg(client)
+        send_msg(gen_answer(client_message), client)
         client.close()
 
 
