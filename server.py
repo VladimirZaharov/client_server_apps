@@ -1,6 +1,7 @@
 import time
 from socket import socket, AF_INET, SOCK_STREAM
 from utils import send_msg, take_msg, load_config, load_args
+from logs.server_log_config import logger
 
 
 def gen_answer(client_msg):
@@ -18,17 +19,21 @@ def gen_answer(client_msg):
 
 
 def main():
-    configs = load_config()
-    args = load_args(configs)
-    s = socket(AF_INET, SOCK_STREAM)
-    s.bind((args.a, args.p))
-    s.listen(configs['MAX_CONNECTIONS'])
+    try:
+        configs = load_config()
+        args = load_args(configs)
+        s = socket(AF_INET, SOCK_STREAM)
+        s.bind((args.a, args.p))
+        s.listen(configs['MAX_CONNECTIONS'])
 
-    while True:
-        client, addr = s.accept()
-        client_message = take_msg(client)
-        send_msg(gen_answer(client_message), client)
-        client.close()
+        while True:
+            client, addr = s.accept()
+            client_message = take_msg(client)
+            logger.info(f'{client_message["USER"]["ACCOUNT_NAME"]} send {client_message["ACTION"]} message')
+            send_msg(gen_answer(client_message), client)
+            client.close()
+    except OSError:
+        logger.error('OS error')
 
 
 if __name__ == '__main__':
