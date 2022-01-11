@@ -15,6 +15,7 @@ def gen_answer(client_msg):
     else:
         answer['RESPONSE'] = 400
         answer['ALERT'] = 'bad request'
+        logger.error('Данные от клиента не пришли или пришли некорректно')
         return answer
 
 
