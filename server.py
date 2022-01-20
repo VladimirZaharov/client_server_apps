@@ -1,3 +1,4 @@
+import select
 import time
 from socket import socket, AF_INET, SOCK_STREAM
 from utils import send_msg, take_msg, load_config, load_args
@@ -20,19 +21,38 @@ def gen_answer(client_msg):
 
 
 def main():
+    clients = []
     try:
         configs = load_config()
         args = load_args(configs)
         s = socket(AF_INET, SOCK_STREAM)
         s.bind((args.a, args.p))
         s.listen(configs['MAX_CONNECTIONS'])
+        s.settimeout(configs['TIMEOUT'])
 
         while True:
-            client, addr = s.accept()
-            client_message = take_msg(client)
+            try:
+                client, addr = s.accept()
+            except OSError as e:
+                pass
+            else:
+                print(f'Получен запрос на соединение')
+                clients.append(client)
+            finally:
+                wait = 0
+                r = []
+                w = []
+                try:
+                    r, w, e = select.select(clients, clients, [], wait)
+                except:
+                    pass
+            client_message = take_msg(r, clients)
             logger.info(f'{client_message["USER"]["ACCOUNT_NAME"]} send {client_message["ACTION"]} message')
             send_msg(gen_answer(client_message), client)
             client.close()
+            requests = read_requests(r, clients)
+            write_responses(requests, w, clients)
+
     except OSError:
         logger.error('OS error')
 

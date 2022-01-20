@@ -9,6 +9,7 @@ PRESENCE: false
 RESPONSE: false
 TIME: time
 TYPE: status
+TIMEOUT: 0.2
 USER:
   ACCOUNT_NAME: account_name
   STATUS: status
