@@ -1,23 +1,31 @@
 import select
-import time
 from socket import socket, AF_INET, SOCK_STREAM
-from utils import send_msg, take_msg, load_config, load_args
+from utils import load_config, load_args
 from logs.server_log_config import logger
 
 
-def gen_answer(client_msg):
-    answer = {
-        "RESPONSE": 200,
-        "TIME": time.time(),
-        "ALERT": f'{client_msg["USER"]["ACCOUNT_NAME"]} knocked!'
-    }
-    if client_msg['ACTION'] == 'presence' and client_msg['TIME'] and client_msg['USER']['ACCOUNT_NAME']:
-        return answer
-    else:
-        answer['RESPONSE'] = 400
-        answer['ALERT'] = 'bad request'
-        logger.error('Данные от клиента не пришли или пришли некорректно')
-        return answer
+def read_msg(w_clients, all_clients):
+    responses = {}
+    for sock in w_clients:
+        try:
+            data = sock.recv(1024).decode('utf-8')
+            responses[sock] = data
+        except:
+            logger.info(f'client disconnected')
+            all_clients.remove(sock)
+    return responses
+
+
+def send_answer(requests, r_clients, all_clients):
+    for sock in r_clients:
+        if sock in requests:
+            try:
+                resp = requests[sock].encode('utf-8')
+                sock.send(resp)
+            except:
+                logger.info(f'client disconnected')
+                sock.close()
+                all_clients.remove(sock)
 
 
 def main():
@@ -46,16 +54,16 @@ def main():
                     r, w, e = select.select(clients, clients, [], wait)
                 except:
                     pass
-            client_message = take_msg(r, clients)
-            logger.info(f'{client_message["USER"]["ACCOUNT_NAME"]} send {client_message["ACTION"]} message')
-            send_msg(gen_answer(client_message), client)
-            client.close()
-            requests = read_requests(r, clients)
-            write_responses(requests, w, clients)
-
+            client_messages = read_msg(w, clients)
+            if client_messages:
+                try:
+                    send_answer(client_messages, r, clients)
+                except:
+                    print('ошибка отправки')
     except OSError:
         logger.error('OS error')
 
 
 if __name__ == '__main__':
     main()
+    print('сервер остановлен')

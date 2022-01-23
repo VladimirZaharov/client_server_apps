@@ -21,12 +21,10 @@ def load_config():
 
 @log_decorator
 def send_msg(some_message, some_socket):
-    msg_json = json.dumps(some_message)
-    some_socket.send(msg_json.encode('utf-8'))
+    some_socket.send(some_message.encode('utf-8'))
 
 
 @log_decorator
 def take_msg(some_socket):
-    msg_json = some_socket.recv(1024).decode('utf-8')
-    msg = json.loads(msg_json)
+    msg = some_socket.recv(1024).decode('utf-8')
     return msg
