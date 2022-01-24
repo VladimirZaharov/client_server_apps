@@ -1,6 +1,6 @@
 import unittest
 import server
-from w_client import gen_msg
+from client import gen_msg
 
 
 class ServerTestCase(unittest.TestCase):
