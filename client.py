@@ -19,11 +19,11 @@ def main():
     s = socket(AF_INET, SOCK_STREAM)
     s.connect((args.a, args.p))
 
-    receiver = threading.Thread(target=take_msg, args=(s))
+    receiver = threading.Thread(target=take_msg, args=(s,))
     receiver.daemon = True
     receiver.start()
 
-    user_interface = threading.Thread(target=user_messenger, args=(s))
+    user_interface = threading.Thread(target=user_messenger, args=(s,))
     user_interface.daemon = True
     user_interface.start()
 
