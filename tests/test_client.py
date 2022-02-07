@@ -1,5 +1,5 @@
 import unittest
-import w_client
+import client
 
 
 class ClientTestCase(unittest.TestCase):
